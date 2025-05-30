@@ -22,28 +22,40 @@ jobs:
         cache: 'npm'
     
     - name: 📦 Install dependencies
-      run: npm ci
+      run: npm ci --only=production
     
     - name: 🧪 Run tests
       run: npm test
     
     - name: 🏗️ Build project
-      run: npm run build --if-present
+      run: npm run build
+    
+    - name: 📦 Create release package
+      run: |
+        mkdir -p release-package
+        cp -r src config examples tests docs package.json README.md LICENSE release-package/
+        cd release-package
+        tar -czf ../intelligent-project-orchestrator-${{ github.ref_name }}.tar.gz .
+        cd ..
+        zip -r intelligent-project-orchestrator-${{ github.ref_name }}.zip release-package/
     
     - name: 📋 Generate changelog
       id: changelog
       run: |
-        # 获取上一个tag
-        PREV_TAG=$(git describe --tags --abbrev=0 HEAD^)
-        echo "Previous tag: $PREV_TAG"
-        
-        # 生成changelog
-        CHANGELOG=$(git log --pretty=format:"- %s (%an)" $PREV_TAG..HEAD)
+        if git describe --tags --abbrev=0 HEAD^ >/dev/null 2>&1; then
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^)
+          echo "Previous tag: $PREV_TAG"
+          CHANGELOG=$(git log --pretty=format:"- %s (%an)" $PREV_TAG..HEAD)
+        else
+          echo "No previous tag found, showing all commits"
+          CHANGELOG=$(git log --pretty=format:"- %s (%an)" HEAD)
+        fi
         echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
         echo "$CHANGELOG" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
     
     - name: 🎉 Create Release
+      id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -64,6 +76,7 @@ jobs:
           - 🎯 提升关键词匹配精度
           - 📋 完善项目文档和API指南
           - 🔧 增强Cursor IDE集成
+          - 🔄 优化CI/CD流水线和自动化部署
           
           ### 📊 性能指标
           - 角色识别准确率: >95%
@@ -80,7 +93,7 @@ jobs:
           ```
           
           ### 📚 文档
-          - [📖 快速开始指南](./quick-start.md)
+          - [📖 快速开始指南](./README.md#quick-start)
           - [📋 API文档](./docs/API.md)
           - [⚙️ 配置说明](./config/roles-config.json)
           - [🌐 在线演示](https://huang-jianhua.github.io/intelligent-project-orchestrator)
@@ -94,13 +107,22 @@ jobs:
         draft: false
         prerelease: false
     
-    - name: 📤 Upload Release Assets
+    - name: 📤 Upload ZIP Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./intelligent-project-orchestrator.zip
+        asset_path: ./intelligent-project-orchestrator-${{ github.ref_name }}.zip
         asset_name: intelligent-project-orchestrator-${{ github.ref_name }}.zip
         asset_content_type: application/zip
-      if: always() 
+    
+    - name: 📤 Upload TAR.GZ Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./intelligent-project-orchestrator-${{ github.ref_name }}.tar.gz
+        asset_name: intelligent-project-orchestrator-${{ github.ref_name }}.tar.gz
+        asset_content_type: application/gzip 
