@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -65,9 +70,10 @@ jobs:
         zip -r intelligent-project-orchestrator-${{ github.ref_name }}.zip release-package/
         
         echo "Release package created successfully"
+        echo "Files created:"
+        ls -la *.tar.gz *.zip
     
-    - name: 📋 Generate changelog
-      id: changelog
+    - name: �� Generate changelog and release notes
       run: |
         echo "Generating changelog..."
         
@@ -105,96 +111,86 @@ jobs:
         echo "Generated changelog:"
         echo "$CHANGELOG"
         
-        # 设置输出
-        {
-          echo "CHANGELOG<<EOF"
-          echo "$CHANGELOG"
-          echo "EOF"
-        } >> $GITHUB_OUTPUT
+        # 创建release notes文件
+        cat > release-notes.md << 'RELEASE_NOTES_EOF'
+        ## 🎉 版本更新 ${{ github.ref_name }}
+        
+        ### ✨ 主要特性
+        - 🎭 **7种专业角色**: 项目经理、运营总监、系统架构师、产品设计师、开发工程师、测试工程师、运维工程师
+        - 🧠 **智能决策算法**: 基于关键词匹配、项目阶段、上下文分析
+        - 🔄 **自动角色切换**: 根据用户输入智能识别最合适的专业角色
+        - 📋 **工作流自动编排**: 预定义的项目流程自动执行
+        - 🚀 **Cursor深度集成**: 无缝融入开发环境
+        
+        ### 🛠️ 技术改进
+        - ⚡ 优化角色切换速度（<500ms）
+        - 🎯 提升关键词匹配精度至95%+
+        - 📋 完善项目文档和API指南
+        - 🔧 增强CI/CD流水线稳定性
+        - 🌐 优化GitHub Pages展示页面
+        
+        ### 📊 性能指标
+        - **角色识别准确率**: >95%
+        - **平均响应时间**: <500ms
+        - **工作流效率提升**: 60%
+        - **团队协作效率提升**: 40%
+        
+        ### 🚀 快速开始
+        ```bash
+        # 下载源码
+        git clone https://github.com/huang-jianhua/intelligent-project-orchestrator.git
+        cd intelligent-project-orchestrator
+        
+        # 安装依赖
+        npm install
+        
+        # 运行演示
+        npm start
+        
+        # 运行测试
+        npm test
+        ```
+        
+        ### 📚 相关资源
+        - [📖 项目文档](https://github.com/huang-jianhua/intelligent-project-orchestrator/blob/main/README.md)
+        - [📋 API参考](https://github.com/huang-jianhua/intelligent-project-orchestrator/blob/main/docs/API.md)
+        - [⚙️ 配置指南](https://github.com/huang-jianhua/intelligent-project-orchestrator/blob/main/config/roles-config.json)
+        - [🌐 在线演示](https://huang-jianhua.github.io/intelligent-project-orchestrator)
+        - [🐛 问题反馈](https://github.com/huang-jianhua/intelligent-project-orchestrator/issues)
+        
+        ### 📝 本次更新内容
+        RELEASE_NOTES_EOF
+        
+        echo "$CHANGELOG" >> release-notes.md
+        
+        cat >> release-notes.md << 'RELEASE_FOOTER_EOF'
+        
+        ---
+        
+        💡 **使用提示**: 这是一个基于AI的项目管理工具，可以根据你的输入自动切换到最合适的专业角色。支持中文交互，完美集成Cursor开发环境。
+        
+        🙏 感谢所有贡献者！如有问题请通过 [Issues](https://github.com/huang-jianhua/intelligent-project-orchestrator/issues) 反馈。
+        RELEASE_FOOTER_EOF
+        
+        echo "Release notes created successfully"
+        cat release-notes.md
     
-    - name: 🎉 Create Release
-      id: create_release
-      uses: actions/create-release@v1
+    - name: 🎉 Create Release with GitHub CLI
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref_name }}
-        release_name: 🎭 智能项目编排系统 ${{ github.ref_name }}
-        body: |
-          ## 🎉 版本更新 ${{ github.ref_name }}
-          
-          ### ✨ 主要特性
-          - 🎭 **7种专业角色**: 项目经理、运营总监、系统架构师、产品设计师、开发工程师、测试工程师、运维工程师
-          - 🧠 **智能决策算法**: 基于关键词匹配、项目阶段、上下文分析
-          - 🔄 **自动角色切换**: 根据用户输入智能识别最合适的专业角色
-          - 📋 **工作流自动编排**: 预定义的项目流程自动执行
-          - 🚀 **Cursor深度集成**: 无缝融入开发环境
-          
-          ### 🛠️ 技术改进
-          - ⚡ 优化角色切换速度（<500ms）
-          - 🎯 提升关键词匹配精度至95%+
-          - 📋 完善项目文档和API指南
-          - 🔧 增强CI/CD流水线稳定性
-          - 🌐 优化GitHub Pages展示页面
-          
-          ### 📊 性能指标
-          - **角色识别准确率**: >95%
-          - **平均响应时间**: <500ms
-          - **工作流效率提升**: 60%
-          - **团队协作效率提升**: 40%
-          
-          ### 🚀 快速开始
-          ```bash
-          # 下载源码
-          git clone https://github.com/huang-jianhua/intelligent-project-orchestrator.git
-          cd intelligent-project-orchestrator
-          
-          # 安装依赖
-          npm install
-          
-          # 运行演示
-          npm start
-          
-          # 运行测试
-          npm test
-          ```
-          
-          ### 📚 相关资源
-          - [📖 项目文档](https://github.com/huang-jianhua/intelligent-project-orchestrator/blob/main/README.md)
-          - [📋 API参考](https://github.com/huang-jianhua/intelligent-project-orchestrator/blob/main/docs/API.md)
-          - [⚙️ 配置指南](https://github.com/huang-jianhua/intelligent-project-orchestrator/blob/main/config/roles-config.json)
-          - [🌐 在线演示](https://huang-jianhua.github.io/intelligent-project-orchestrator)
-          - [🐛 问题反馈](https://github.com/huang-jianhua/intelligent-project-orchestrator/issues)
-          
-          ### 📝 本次更新内容
-          ${{ steps.changelog.outputs.CHANGELOG }}
-          
-          ---
-          
-          💡 **使用提示**: 这是一个基于AI的项目管理工具，可以根据你的输入自动切换到最合适的专业角色。支持中文交互，完美集成Cursor开发环境。
-          
-          🙏 感谢所有贡献者！如有问题请通过 [Issues](https://github.com/huang-jianhua/intelligent-project-orchestrator/issues) 反馈。
-        draft: false
-        prerelease: false
-    
-    - name: 📤 Upload ZIP Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./intelligent-project-orchestrator-${{ github.ref_name }}.zip
-        asset_name: intelligent-project-orchestrator-${{ github.ref_name }}.zip
-        asset_content_type: application/zip
-      continue-on-error: true
-    
-    - name: 📤 Upload TAR.GZ Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./intelligent-project-orchestrator-${{ github.ref_name }}.tar.gz
-        asset_name: intelligent-project-orchestrator-${{ github.ref_name }}.tar.gz
-        asset_content_type: application/gzip
-      continue-on-error: true 
+      run: |
+        echo "Creating release with GitHub CLI..."
+        
+        # 创建release并上传文件
+        gh release create ${{ github.ref_name }} \
+          --title "🎭 智能项目编排系统 ${{ github.ref_name }}" \
+          --notes-file release-notes.md \
+          --latest \
+          ./intelligent-project-orchestrator-${{ github.ref_name }}.zip \
+          ./intelligent-project-orchestrator-${{ github.ref_name }}.tar.gz
+        
+        echo "Release created successfully!"
+        
+        # 验证release
+        echo "Verifying release..."
+        gh release view ${{ github.ref_name }} 
