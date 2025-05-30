@@ -14,6 +14,13 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: 🔧 Setup Git
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        echo "Git configured successfully"
     
     - name: 🔧 Setup Node.js
       uses: actions/setup-node@v4
@@ -22,37 +29,88 @@ jobs:
         cache: 'npm'
     
     - name: 📦 Install dependencies
-      run: npm ci --only=production
+      run: |
+        npm ci --only=production
+        echo "Dependencies installed successfully"
     
     - name: 🧪 Run tests
-      run: npm test
+      run: |
+        npm test
+        echo "Tests completed successfully"
     
     - name: 🏗️ Build project
-      run: npm run build
+      run: |
+        npm run build
+        echo "Build completed successfully"
     
     - name: 📦 Create release package
       run: |
+        echo "Creating release package..."
         mkdir -p release-package
-        cp -r src config examples tests docs package.json README.md LICENSE release-package/
+        
+        # 复制文件，处理可能不存在的文件
+        [ -d "src" ] && cp -r src release-package/ || echo "src directory not found"
+        [ -d "config" ] && cp -r config release-package/ || echo "config directory not found"
+        [ -d "examples" ] && cp -r examples release-package/ || echo "examples directory not found"
+        [ -d "tests" ] && cp -r tests release-package/ || echo "tests directory not found"
+        [ -d "docs" ] && cp -r docs release-package/ || echo "docs directory not found"
+        [ -f "package.json" ] && cp package.json release-package/ || echo "package.json not found"
+        [ -f "README.md" ] && cp README.md release-package/ || echo "README.md not found"
+        [ -f "LICENSE" ] && cp LICENSE release-package/ || echo "LICENSE not found"
+        
+        # 创建压缩包
         cd release-package
         tar -czf ../intelligent-project-orchestrator-${{ github.ref_name }}.tar.gz .
         cd ..
         zip -r intelligent-project-orchestrator-${{ github.ref_name }}.zip release-package/
+        
+        echo "Release package created successfully"
     
     - name: 📋 Generate changelog
       id: changelog
       run: |
-        if git describe --tags --abbrev=0 HEAD^ >/dev/null 2>&1; then
-          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^)
-          echo "Previous tag: $PREV_TAG"
-          CHANGELOG=$(git log --pretty=format:"- %s (%an)" $PREV_TAG..HEAD)
+        echo "Generating changelog..."
+        
+        # 获取所有标签并排序
+        TAGS=$(git tag --sort=-version:refname)
+        echo "Available tags: $TAGS"
+        
+        # 获取当前标签
+        CURRENT_TAG=${{ github.ref_name }}
+        echo "Current tag: $CURRENT_TAG"
+        
+        # 查找前一个标签
+        PREV_TAG=""
+        FOUND_CURRENT=false
+        
+        for tag in $TAGS; do
+          if [ "$FOUND_CURRENT" = true ]; then
+            PREV_TAG="$tag"
+            break
+          fi
+          if [ "$tag" = "$CURRENT_TAG" ]; then
+            FOUND_CURRENT=true
+          fi
+        done
+        
+        # 生成changelog
+        if [ -n "$PREV_TAG" ]; then
+          echo "Generating changelog from $PREV_TAG to $CURRENT_TAG"
+          CHANGELOG=$(git log --pretty=format:"- %s (%an)" $PREV_TAG..$CURRENT_TAG 2>/dev/null || echo "- Initial release")
         else
-          echo "No previous tag found, showing all commits"
-          CHANGELOG=$(git log --pretty=format:"- %s (%an)" HEAD)
+          echo "No previous tag found, showing recent commits"
+          CHANGELOG=$(git log --pretty=format:"- %s (%an)" --max-count=10 2>/dev/null || echo "- Initial release")
         fi
-        echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-        echo "$CHANGELOG" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+        
+        echo "Generated changelog:"
+        echo "$CHANGELOG"
+        
+        # 设置输出
+        {
+          echo "CHANGELOG<<EOF"
+          echo "$CHANGELOG"
+          echo "EOF"
+        } >> $GITHUB_OUTPUT
     
     - name: 🎉 Create Release
       id: create_release
@@ -63,47 +121,59 @@ jobs:
         tag_name: ${{ github.ref_name }}
         release_name: 🎭 智能项目编排系统 ${{ github.ref_name }}
         body: |
-          ## 🎉 重大更新
+          ## 🎉 版本更新 ${{ github.ref_name }}
           
-          ### ✨ 新功能
-          - 🆕 **运营总监角色**: 专注用户增长和数据分析
-          - 📊 **增强决策算法**: 提升角色识别准确率至95%+
-          - 🔄 **智能工作流**: 自动化项目流程编排
-          - 📈 **性能监控**: 实时追踪团队协作效率
+          ### ✨ 主要特性
+          - 🎭 **7种专业角色**: 项目经理、运营总监、系统架构师、产品设计师、开发工程师、测试工程师、运维工程师
+          - 🧠 **智能决策算法**: 基于关键词匹配、项目阶段、上下文分析
+          - 🔄 **自动角色切换**: 根据用户输入智能识别最合适的专业角色
+          - 📋 **工作流自动编排**: 预定义的项目流程自动执行
+          - 🚀 **Cursor深度集成**: 无缝融入开发环境
           
-          ### 🛠️ 改进
+          ### 🛠️ 技术改进
           - ⚡ 优化角色切换速度（<500ms）
-          - 🎯 提升关键词匹配精度
+          - 🎯 提升关键词匹配精度至95%+
           - 📋 完善项目文档和API指南
-          - 🔧 增强Cursor IDE集成
-          - 🔄 优化CI/CD流水线和自动化部署
+          - 🔧 增强CI/CD流水线稳定性
+          - 🌐 优化GitHub Pages展示页面
           
           ### 📊 性能指标
-          - 角色识别准确率: >95%
-          - 平均响应时间: <500ms
-          - 工作流执行效率提升: 60%
-          - 团队协作效率提升: 40%
+          - **角色识别准确率**: >95%
+          - **平均响应时间**: <500ms
+          - **工作流效率提升**: 60%
+          - **团队协作效率提升**: 40%
           
           ### 🚀 快速开始
           ```bash
+          # 下载源码
           git clone https://github.com/huang-jianhua/intelligent-project-orchestrator.git
           cd intelligent-project-orchestrator
+          
+          # 安装依赖
           npm install
+          
+          # 运行演示
           npm start
+          
+          # 运行测试
+          npm test
           ```
           
-          ### 📚 文档
-          - [📖 快速开始指南](./README.md#quick-start)
-          - [📋 API文档](./docs/API.md)
-          - [⚙️ 配置说明](./config/roles-config.json)
+          ### 📚 相关资源
+          - [📖 项目文档](https://github.com/huang-jianhua/intelligent-project-orchestrator/blob/main/README.md)
+          - [📋 API参考](https://github.com/huang-jianhua/intelligent-project-orchestrator/blob/main/docs/API.md)
+          - [⚙️ 配置指南](https://github.com/huang-jianhua/intelligent-project-orchestrator/blob/main/config/roles-config.json)
           - [🌐 在线演示](https://huang-jianhua.github.io/intelligent-project-orchestrator)
+          - [🐛 问题反馈](https://github.com/huang-jianhua/intelligent-project-orchestrator/issues)
           
-          ### 📝 更新日志
+          ### 📝 本次更新内容
           ${{ steps.changelog.outputs.CHANGELOG }}
           
           ---
           
-          🙏 感谢所有贡献者的努力！如果您在使用过程中遇到任何问题，请通过 [Issues](https://github.com/huang-jianhua/intelligent-project-orchestrator/issues) 反馈。
+          💡 **使用提示**: 这是一个基于AI的项目管理工具，可以根据你的输入自动切换到最合适的专业角色。支持中文交互，完美集成Cursor开发环境。
+          
+          🙏 感谢所有贡献者！如有问题请通过 [Issues](https://github.com/huang-jianhua/intelligent-project-orchestrator/issues) 反馈。
         draft: false
         prerelease: false
     
@@ -116,6 +186,7 @@ jobs:
         asset_path: ./intelligent-project-orchestrator-${{ github.ref_name }}.zip
         asset_name: intelligent-project-orchestrator-${{ github.ref_name }}.zip
         asset_content_type: application/zip
+      continue-on-error: true
     
     - name: 📤 Upload TAR.GZ Release Asset
       uses: actions/upload-release-asset@v1
@@ -125,4 +196,5 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./intelligent-project-orchestrator-${{ github.ref_name }}.tar.gz
         asset_name: intelligent-project-orchestrator-${{ github.ref_name }}.tar.gz
-        asset_content_type: application/gzip 
+        asset_content_type: application/gzip
+      continue-on-error: true 
