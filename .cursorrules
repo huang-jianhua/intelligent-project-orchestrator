@@ -1,0 +1,144 @@
+# 🎭 智能项目编排系统 - Cursor自动激活规则
+# Intelligent Project Orchestrator - Auto Activation Rules
+
+## 系统配置
+# 启用智能项目编排模式
+AUTO_ORCHESTRATION_ENABLED=true
+VERBOSE_MODE=true
+QUALITY_THRESHOLD=0.85
+
+## 角色自动切换规则
+# 每当用户输入包含以下关键词时，自动激活对应角色
+
+# 项目管理触发器
+TRIGGER_PROJECT_MANAGER: "项目规划,进度管控,风险管理,资源分配,整体规划,项目状态,里程碑"
+
+# 运营总监触发器
+TRIGGER_OPERATIONS_DIRECTOR: "用户增长,数据分析,运营策略,市场推广,用户留存,内容运营,SEO优化,商业模式,竞品分析,用户画像,增长黑客,转化率优化"
+
+# 系统架构师触发器  
+TRIGGER_SYSTEM_ARCHITECT: "架构设计,技术选型,性能优化,系统设计,数据库设计,API设计,技术方案"
+
+# 开发工程师触发器
+TRIGGER_DEVELOPER: "编写代码,实现功能,修复bug,代码重构,程序开发,代码审查,单元测试"
+
+# 产品设计师触发器
+TRIGGER_PRODUCT_DESIGNER: "需求分析,用户体验,界面设计,原型设计,用户界面,交互设计"
+
+# 测试工程师触发器
+TRIGGER_QA_ENGINEER: "测试,质量检查,自动化测试,性能测试,验证,质量保证"
+
+# 运维工程师触发器
+TRIGGER_DEVOPS_ENGINEER: "部署,运维,监控,CI/CD,自动化运维,容器化,云服务"
+
+## 强制启用规则
+# 当检测到特定文件类型或项目结构时，强制启用编排系统
+
+# JavaScript/TypeScript项目检测
+IF_EXISTS: "package.json,tsconfig.json" -> ENABLE_ORCHESTRATION
+
+# React项目检测  
+IF_EXISTS: "src/App.tsx,src/App.jsx" -> ENABLE_ORCHESTRATION
+
+# Node.js后端检测
+IF_EXISTS: "server.js,app.js,index.js" -> ENABLE_ORCHESTRATION
+
+# 博客系统检测
+IF_EXISTS: "blog-system/" -> ENABLE_ORCHESTRATION
+
+## 自动化工作流
+# 预定义的自动化响应模式
+
+# 新项目启动自动化
+ON_PROJECT_INIT: |
+  1. 切换到项目经理模式
+  2. 分析项目结构和需求
+  3. 制定开发计划
+  4. 推荐技术栈
+
+# 代码提交自动化
+ON_GIT_COMMIT: |
+  1. 切换到开发工程师模式
+  2. 代码质量检查
+  3. 自动化测试建议
+  4. 部署准备
+
+# 错误检测自动化
+ON_ERROR_DETECTED: |
+  1. 切换到对应专家角色
+  2. 问题诊断分析
+  3. 解决方案建议
+  4. 预防措施
+
+## 智能提示配置
+# 自动显示角色切换和建议
+
+SHOW_ROLE_SWITCH_NOTIFICATION=true
+SHOW_WORKFLOW_SUGGESTIONS=true
+SHOW_OPTIMIZATION_TIPS=true
+
+## 项目特定配置
+# 针对当前博客系统项目的特殊规则
+
+PROJECT_NAME: "modern-blog-system"
+PROJECT_TYPE: "full-stack-web-application"
+TECH_STACK: "React,Node.js,TypeScript,PostgreSQL"
+
+# 自动角色映射
+FRONTEND_FILES: "src/**/*.tsx,src/**/*.jsx" -> developer
+BACKEND_FILES: "server/**/*.ts,api/**/*.js" -> developer  
+CONFIG_FILES: "package.json,tsconfig.json,vite.config.ts" -> system_architect
+TEST_FILES: "**/*.test.ts,**/*.spec.js" -> qa_engineer
+DEPLOY_FILES: "Dockerfile,docker-compose.yml,.github/workflows/**" -> devops_engineer
+
+## MCP集成自动化
+# 自动配置和使用MCP服务器
+
+AUTO_LOAD_MCP_SERVERS=true
+MCP_CONFIG_FILE="mcp-config.json"
+
+# GitHub集成自动化
+GITHUB_AUTO_SYNC=true
+GITHUB_REPO="huang-jianhua/modern-blog-system"
+
+# Cloudflare集成自动化  
+CLOUDFLARE_AUTO_DEPLOY=true
+CLOUDFLARE_PROJECT="modern-blog-system"
+
+## 性能优化
+# 系统性能和响应配置
+
+ROLE_SWITCH_DELAY=0.5s
+CONTEXT_ANALYSIS_TIMEOUT=10s
+AUTO_SAVE_INTERVAL=30s
+
+## 用户体验配置
+# 提升用户交互体验
+
+GREETING_MESSAGE: |
+  🎭 智能项目编排系统已激活！
+  
+  我会根据您的输入自动切换为最合适的专业角色：
+  • 项目经理 🎭 - 整体规划和管理
+  • 运营总监 📈 - 用户增长和数据分析
+  • 系统架构师 🏗️ - 技术设计和架构  
+  • 开发工程师 👨‍💻 - 代码实现和开发
+  • 产品设计师 🎨 - 用户体验和界面
+  • 测试工程师 🧪 - 质量保证和测试
+  • 运维工程师 🚀 - 部署和运维
+  
+  输入您的需求，我会智能选择最佳角色为您服务！
+
+## 调试和日志
+# 开发和调试配置
+
+DEBUG_MODE=false
+LOG_ROLE_SWITCHES=true
+LOG_DECISION_PROCESS=true
+
+## 扩展配置
+# 未来扩展功能预留
+
+ALLOW_CUSTOM_ROLES=true
+ENABLE_LEARNING_MODE=true
+ENABLE_TEAM_COLLABORATION=false 

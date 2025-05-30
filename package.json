@@ -1,0 +1,73 @@
+{
+  "name": "intelligent-project-orchestrator",
+  "version": "1.1.0",
+  "description": "🎭 智能项目编排系统 - 基于AI角色切换的自动化项目管理工具",
+  "main": "src/orchestrator-demo.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/orchestrator-demo.js",
+    "test": "node tests/orchestrator-test.js",
+    "demo": "node examples/basic-demo.js",
+    "test:roles": "node tests/roles-test.js",
+    "lint": "eslint src/ tests/ examples/",
+    "docs": "jsdoc src/ -d docs/api"
+  },
+  "keywords": [
+    "ai",
+    "automation",
+    "project-management",
+    "role-switching",
+    "intelligent-orchestration",
+    "workflow",
+    "team-coordination",
+    "cursor",
+    "productivity",
+    "chinese"
+  ],
+  "author": {
+    "name": "Huang Jianhua",
+    "email": "your-email@example.com",
+    "url": "https://github.com/huang-jianhua"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/huang-jianhua/intelligent-project-orchestrator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/huang-jianhua/intelligent-project-orchestrator/issues"
+  },
+  "homepage": "https://github.com/huang-jianhua/intelligent-project-orchestrator#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.3.0",
+    "eslint": "^8.0.0",
+    "jsdoc": "^4.0.0",
+    "mocha": "^10.0.0"
+  },
+  "dependencies": {
+    "intelligent-project-orchestrator": "file:"
+  },
+  "files": [
+    "src/",
+    "config/",
+    "examples/",
+    "tests/",
+    "docs/",
+    ".cursorrules",
+    "README.md",
+    "LICENSE"
+  ],
+  "directories": {
+    "lib": "src",
+    "test": "tests",
+    "doc": "docs",
+    "example": "examples"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/huang-jianhua"
+  }
+}
